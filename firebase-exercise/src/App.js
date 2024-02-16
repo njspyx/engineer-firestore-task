@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react'; // Or Whatever React imports you want
-import './App.css';
-
+import React, { useState, useEffect } from "react"; // Or Whatever React imports you want
+import "./App.css";
+import db from "./firebase-config.js"; // Import the database from the firebase-config file
+import { collection, getDocs } from "firebase/firestore";
 
 function App() {
-
-  const [newChapterName, setNewChapterName] = useState('');
-  const [chapterToDelete, setChapterToDelete] = useState('');
+  const [newChapterName, setNewChapterName] = useState("");
+  const [chapterToDelete, setChapterToDelete] = useState("");
+  const [chapters, setChapters] = useState([]);
 
   const displayDatabase = async () => {
-    // TODO: Implement the logic to fetch and display chapters from the database
+    const chaptersCollectionRef = collection(db, "chapters");
+    const chaptersSnapshot = await getDocs(chaptersCollectionRef);
+    const chaptersList = chaptersSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setChapters(chaptersList);
   };
 
   // Function to add a chapter
@@ -43,6 +50,24 @@ function App() {
         />
         <button onClick={deleteChapter}>Delete Chapter</button>
       </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chapters.map((chapter) => (
+            <tr key={chapter.id}>
+              <td>{chapter.id}</td>
+              <td>{chapter.name}</td>
+              <td>{chapter.location}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
