@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react"; // Or Whatever React imports you want
 import "./App.css";
 import db from "./firebase-config.js"; // Import the database from the firebase-config file
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 function App() {
   const [newChapterName, setNewChapterName] = useState("");
@@ -20,12 +26,35 @@ function App() {
 
   // Function to add a chapter
   const addChapter = async () => {
-    // TODO: Implement the logic to add a new chapter to the database
+    // If the input field is empty, don't add a new chapter
+    setNewChapterName(newChapterName.trim());
+    if (!newChapterName) return;
+    try {
+      const chaptersCollectionRef = collection(db, "chapters");
+      const docRef = await addDoc(chaptersCollectionRef, {
+        name: newChapterName,
+        location: "N/A", // Init location as N/A
+      });
+      console.log("Chapter added with ID: ", docRef.id);
+      setNewChapterName("");
+    } catch (error) {
+      console.error("Error adding chapter: ", error);
+    }
   };
 
   // Function to delete a chapter
   const deleteChapter = async () => {
-    // TODO: Implement the logic to delete a chapter from the database
+    // If input field is empty, don't delete a chapter
+    setChapterToDelete(chapterToDelete.trim());
+    if (!chapterToDelete) return;
+    try {
+      const docRef = doc(db, "chapters", chapterToDelete);
+      await deleteDoc(docRef);
+      console.log("Chapter deleted with ID: ", chapterToDelete);
+      setChapterToDelete("");
+    } catch (error) {
+      console.error("Error deleting chapter: ", error);
+    }
   };
 
   return (
